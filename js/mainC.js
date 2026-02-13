@@ -29,6 +29,7 @@ class Circle {
         this.baseSpeed = speed;
         this.dx = (Math.random() - 0.5) * this.baseSpeed;
         this.dy = (Math.random() - 0.5) * this.baseSpeed;
+        this.mass = this.radius; 
     }
 
     draw(context) {
@@ -38,14 +39,16 @@ class Circle {
         context.textBaseline = "middle";
         context.font = "14px Arial";
         context.fillText(this.text, this.posX, this.posY);
-        context.lineWidth = 3;
+        context.lineWidth = 2;
         context.arc(this.posX, this.posY, this.radius, 0, Math.PI * 2, false);
         context.stroke();
         context.closePath();
     }
 
     update(context) {
-        // Velocidad controlada por el slider
+        this.draw(context);
+
+        // Control de velocidad
         let currentDx = this.dx * globalSpeed;
         let currentDy = this.dy * globalSpeed;
 
@@ -64,7 +67,6 @@ class Circle {
 
         this.posX += currentDx;
         this.posY += currentDy;
-        this.draw(context);
     }
 }
 
@@ -72,8 +74,38 @@ function getDistance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
+function resolveCollision(particle, otherParticle) {
+    const xVelocityDiff = particle.dx - otherParticle.dx;
+    const yVelocityDiff = particle.dy - otherParticle.dy;
+    const xDist = otherParticle.posX - particle.posX;
+    const yDist = otherParticle.posY - particle.posY;
+
+    if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0) {
+        const angle = -Math.atan2(otherParticle.posY - particle.posY, otherParticle.posX - particle.posX);
+        const m1 = particle.mass;
+        const m2 = otherParticle.mass;
+        const u1 = rotate({x: particle.dx, y: particle.dy}, angle);
+        const u2 = rotate({x: otherParticle.dx, y: otherParticle.dy}, angle);
+        const v1 = { x: u1.x * (m1 - m2) / (m1 + m2) + u2.x * 2 * m2 / (m1 + m2), y: u1.y };
+        const v2 = { x: u2.x * (m1 - m2) / (m1 + m2) + u1.x * 2 * m1 / (m1 + m2), y: u2.y };
+        const vFinal1 = rotate(v1, -angle);
+        const vFinal2 = rotate(v2, -angle);
+        particle.dx = vFinal1.x;
+        particle.dy = vFinal1.y;
+        otherParticle.dx = vFinal2.x;
+        otherParticle.dy = vFinal2.y;
+    }
+}
+
+function rotate(velocity, angle) {
+    return {
+        x: velocity.x * Math.cos(angle) - velocity.y * Math.sin(angle),
+        y: velocity.x * Math.sin(angle) + velocity.y * Math.cos(angle)
+    };
+}
+
 let circles = [];
-const numeroDeCirculos = 10;
+const numeroDeCirculos = 10; 
 
 function resetSimulation() {
     circles = [];
@@ -85,8 +117,19 @@ function resetSimulation() {
         let radius = Math.floor(Math.random() * 10 + 15);
         let x = Math.random() * (canvas.width - radius * 2) + radius;
         let y = Math.random() * (canvas.height - radius * 2) + radius;
-        let speed = 4;
-        circles.push(new Circle(x, y, radius, "blue", (i + 1).toString(), speed));
+        let speed = 3;
+        
+        // Evitar superposición inicial
+        if (i !== 0) {
+            for(let j = 0; j < circles.length; j++) {
+                if (getDistance(x, y, circles[j].posX, circles[j].posY) - radius * 2 < 0) {
+                    x = Math.random() * (canvas.width - radius * 2) + radius;
+                    y = Math.random() * (canvas.height - radius * 2) + radius;
+                    j = -1; 
+                }
+            }
+        }
+        circles.push(new Circle(x, y, radius, "black", (i + 1).toString(), speed));
     }
 }
 
@@ -103,9 +146,12 @@ let updateCircle = function () {
             if (getDistance(circles[i].posX, circles[i].posY, circles[j].posX, circles[j].posY) < (circles[i].radius + circles[j].radius)) {
                 circles[i].color = "red";
                 circles[j].color = "red";
-                // Sumar al contador
+                
+                resolveCollision(circles[i], circles[j]);
+                
+                // CONTADOR DE REBOTES REALES
                 colisiones++;
-                if(contadorElement) contadorElement.innerText = Math.floor(colisiones/5); // Dividimos para suavizar el conteo
+                if(contadorElement) contadorElement.innerText = colisiones; 
             }
         }
     }

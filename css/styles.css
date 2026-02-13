@@ -1,0 +1,150 @@
+/* --- FUENTE MODERNA --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+:root {
+    --primary-dark: #0f172a;       /* Azul noche profundo */
+    --accent: #3b82f6;             /* Azul eléctrico brillante */
+    --accent-glow: rgba(59, 130, 246, 0.5);
+    --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    --card-bg: rgba(255, 255, 255, 0.65); /* Más transparente para efecto vidrio */
+    --text-main: #1e293b;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-gradient);
+    /* Patrón de cuadrícula "papel milimétrico" para toque científico */
+    background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    margin: 0;
+    padding-top: 100px; 
+    padding-bottom: 80px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* --- NAVBAR FUTURISTA --- */
+.navbar {
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+    margin: 0 5px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff !important;
+    transform: translateY(-2px);
+}
+
+.nav-link.active {
+    background: var(--accent);
+    color: white !important;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* --- TÍTULOS --- */
+h2 {
+    font-weight: 800;
+    color: var(--primary-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block; /* Mantiene la línea decorativa ajustada al texto */
+}
+
+h2::after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 4px;
+    background: var(--accent);
+    margin: 8px auto 0;
+    border-radius: 2px;
+}
+
+/* --- CONTENEDOR DEL CANVAS (CORREGIDO) --- */
+#canvas-container {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.1), 
+        0 0 0 1px rgba(255,255,255,0.4) inset;
+    
+    /* ESTAS 3 LÍNEAS ARREGLAN EL ERROR DE POSICIÓN: */
+    display: block;      /* Fuerza que sea un bloque separado, no inline */
+    width: fit-content;  /* Se ajusta al tamaño del canvas */
+    margin: 20px auto;   /* Se centra automáticamente y se separa del título */
+}
+
+canvas {
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    display: block;
+}
+
+/* --- FOOTER PROFESIONAL --- */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: var(--primary-dark) !important;
+    color: #94a3b8 !important;
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    z-index: 1000;
+}
+
+footer strong {
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+/* Ajuste Responsive para celulares */
+@media (max-width: 600px) {
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+    }
+    h2 { 
+        font-size: 1.5rem; 
+        display: block; /* En celular el título ocupa todo el ancho */
+    }
+    #canvas-container {
+        width: 95%; /* En celular ocupa casi todo el ancho */
+    }
+}
